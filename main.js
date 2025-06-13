@@ -240,20 +240,6 @@ ipcMain.handle('create-aggregator', async (event, formData) => {
     try {
         const configPath = path.join(__dirname, 'configs', 'config_aggregator_subscriptions.csv');
         
-        // Insert into MongoDB first to get the generated ID
-        let finalId = formData.id;
-        let mongoResult = null;
-        try {
-            mongoResult = await insertIntoMongoDB('aggregator', formData);
-            if (mongoResult.generatedId) {
-                finalId = mongoResult.generatedId;
-                console.log(`Generated aggregator ID: ${finalId}`);
-            }
-        } catch (mongoError) {
-            console.error('MongoDB insertion failed:', mongoError);
-            return { success: false, message: `Failed to create aggregator: ${mongoError.message}` };
-        }
-        
         // Read existing config
         let configContent = '';
         if (fs.existsSync(configPath)) {
@@ -263,25 +249,30 @@ ipcMain.handle('create-aggregator', async (event, formData) => {
             configContent = 'AggregatorId,Region,Ocean,AreaType,Latitude,Longitude,SubscribedDataTypes\n';
         }
         
-        // Check if aggregator ID already exists in CSV
+        // Check if aggregator ID already exists
         const lines = configContent.split('\n');
         const existingIds = lines.slice(1).map(line => line.split(',')[0]).filter(id => id.trim());
         
-        if (existingIds.includes(finalId)) {
-            return { success: false, message: `Aggregator ID ${finalId} already exists in CSV` };
+        if (existingIds.includes(formData.id)) {
+            return { success: false, message: `Aggregator ID ${formData.id} already exists` };
         }
         
         // Create new aggregator entry
         const dataTypesString = `"${formData.dataTypes.join(',')}"`;
-        const newEntry = `${finalId},${formData.region},${formData.ocean},${formData.areaType},${formData.latitude},${formData.longitude},${dataTypesString}\n`;
+        const newEntry = `${formData.id},${formData.region},${formData.ocean},${formData.areaType},${formData.latitude},${formData.longitude},${dataTypesString}\n`;
           // Append to config file
         fs.appendFileSync(configPath, newEntry);
         
-        return { 
-            success: true, 
-            message: `Aggregator ${finalId} created successfully`,
-            generatedId: finalId
-        };
+        // Insert into MongoDB
+        try {
+            await insertIntoMongoDB('aggregator', formData);
+            console.log(`Successfully inserted aggregator ${formData.id} into MongoDB`);
+        } catch (mongoError) {
+            console.error('MongoDB insertion failed:', mongoError);
+            // Don't fail the entire operation if MongoDB insertion fails
+        }
+        
+        return { success: true, message: `Aggregator ${formData.id} created successfully` };
     } catch (error) {
         console.error('Error creating aggregator:', error);
         return { success: false, message: `Failed to create aggregator: ${error.message}` };
@@ -292,20 +283,6 @@ ipcMain.handle('create-wavy', async (event, formData) => {
     try {
         const configPath = path.join(__dirname, 'configs', 'config_wavy_oceanographic.csv');
         
-        // Insert into MongoDB first to get the generated ID
-        let finalId = formData.id;
-        let mongoResult = null;
-        try {
-            mongoResult = await insertIntoMongoDB('wavy', formData);
-            if (mongoResult.generatedId) {
-                finalId = mongoResult.generatedId;
-                console.log(`Generated wavy ID: ${finalId}`);
-            }
-        } catch (mongoError) {
-            console.error('MongoDB insertion failed:', mongoError);
-            return { success: false, message: `Failed to create wavy: ${mongoError.message}` };
-        }
-        
         // Read existing config
         let configContent = '';
         if (fs.existsSync(configPath)) {
@@ -315,26 +292,31 @@ ipcMain.handle('create-wavy', async (event, formData) => {
             configContent = 'WAVY_ID,status,last_sync,data_interval,is_active,latitude,longitude,ocean,area_type,region_coverage\n';
         }
         
-        // Check if wavy ID already exists in CSV
+        // Check if wavy ID already exists
         const lines = configContent.split('\n');
         const existingIds = lines.slice(1).map(line => line.split(',')[0]).filter(id => id.trim());
         
-        if (existingIds.includes(finalId)) {
-            return { success: false, message: `Wavy ID ${finalId} already exists in CSV` };
+        if (existingIds.includes(formData.id)) {
+            return { success: false, message: `Wavy ID ${formData.id} already exists` };
         }
         
         // Create new wavy entry
         const timestamp = new Date().toISOString();
         const isActive = formData.status === 1 ? 'true' : 'false';
-        const newEntry = `${finalId},${formData.status},${timestamp},${formData.dataInterval},${isActive},${formData.latitude},${formData.longitude},${formData.ocean},${formData.areaType},"${formData.regionCoverage}"\n`;
+        const newEntry = `${formData.id},${formData.status},${timestamp},${formData.dataInterval},${isActive},${formData.latitude},${formData.longitude},${formData.ocean},${formData.areaType},"${formData.regionCoverage}"\n`;
           // Append to config file
         fs.appendFileSync(configPath, newEntry);
         
-        return { 
-            success: true, 
-            message: `Wavy ${finalId} created successfully`,
-            generatedId: finalId
-        };
+        // Insert into MongoDB
+        try {
+            await insertIntoMongoDB('wavy', formData);
+            console.log(`Successfully inserted wavy ${formData.id} into MongoDB`);
+        } catch (mongoError) {
+            console.error('MongoDB insertion failed:', mongoError);
+            // Don't fail the entire operation if MongoDB insertion fails
+        }
+        
+        return { success: true, message: `Wavy ${formData.id} created successfully` };
     } catch (error) {
         console.error('Error creating wavy:', error);
         return { success: false, message: `Failed to create wavy: ${error.message}` };
@@ -367,22 +349,7 @@ async function insertIntoMongoDB(componentType, formData) {
         process.on('close', (code) => {
             if (code === 0) {
                 console.log(`MongoDB insertion successful: ${stdout.trim()}`);
-                
-                // Extract generated ID if present
-                let generatedId = null;
-                const lines = stdout.trim().split('\n');
-                for (const line of lines) {
-                    if (line.startsWith('GENERATED_ID:')) {
-                        generatedId = line.substring('GENERATED_ID:'.length);
-                        break;
-                    }
-                }
-                
-                resolve({ 
-                    success: true, 
-                    message: stdout.trim(),
-                    generatedId: generatedId
-                });
+                resolve({ success: true, message: stdout.trim() });
             } else {
                 console.error(`MongoDB insertion failed (code ${code}): ${stderr}`);
                 reject(new Error(`ComponentCreator failed: ${stderr || stdout}`));
@@ -531,4 +498,122 @@ function stopProcess(processId) {
         }
     }
     return { success: false, message: `Process ${processId} not found or already stopped` };
+}
+
+// Dashboard server management
+ipcMain.handle('start-dashboard-server', async (event) => {
+    try {
+        // Check if python is available
+        const pythonProcess = spawn('python', ['--version'], { stdio: 'pipe' });
+        
+        return new Promise((resolve, reject) => {
+            let pythonAvailable = false;
+            
+            pythonProcess.on('close', (code) => {
+                if (code === 0) {
+                    pythonAvailable = true;
+                } else {
+                    // Try python3 as well
+                    const python3Process = spawn('python3', ['--version'], { stdio: 'pipe' });
+                    python3Process.on('close', (python3Code) => {
+                        if (python3Code === 0) {
+                            pythonAvailable = true;
+                        }
+                        
+                        if (!pythonAvailable) {
+                            resolve({ 
+                                success: false, 
+                                error: 'Python not found. Please install Python 3.8+ and add it to your PATH.' 
+                            });
+                            return;
+                        }
+                        
+                        startPythonDashboard(resolve);
+                    });
+                    return;
+                }
+                
+                startPythonDashboard(resolve);
+            });
+            
+            pythonProcess.on('error', (error) => {
+                resolve({ 
+                    success: false, 
+                    error: 'Python not found. Please install Python 3.8+ and add it to your PATH.' 
+                });
+            });
+        });
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+function startPythonDashboard(resolve) {
+    try {
+        const dashboardProcess = spawn('python', ['dashboard_server.py'], {
+            cwd: __dirname,
+            stdio: ['pipe', 'pipe', 'pipe'],
+            env: { ...process.env }
+        });
+        
+        const processId = 'dashboard-server';
+        processes.set(processId, dashboardProcess);
+        
+        let startupOutput = '';
+        
+        dashboardProcess.stdout.on('data', (data) => {
+            const output = data.toString();
+            startupOutput += output;
+            
+            if (mainWindow) {
+                mainWindow.webContents.send('process-output', processId, `[DASHBOARD] ${output}`);
+            }
+        });
+        
+        dashboardProcess.stderr.on('data', (data) => {
+            const output = data.toString();
+            
+            if (mainWindow) {
+                mainWindow.webContents.send('process-output', processId, `[DASHBOARD ERROR] ${output}`);
+            }
+            
+            // Check for common Python errors
+            if (output.includes('ModuleNotFoundError') || output.includes('ImportError')) {
+                resolve({ 
+                    success: false, 
+                    error: 'Missing Python packages. Please run: pip install -r requirements.txt' 
+                });
+                return;
+            }
+        });
+        
+        dashboardProcess.on('error', (error) => {
+            if (mainWindow) {
+                mainWindow.webContents.send('process-output', processId, `[DASHBOARD ERROR] ${error.message}\n`);
+            }
+            resolve({ success: false, error: error.message });
+        });
+        
+        dashboardProcess.on('close', (code) => {
+            if (mainWindow) {
+                mainWindow.webContents.send('process-output', processId, `[DASHBOARD] Process exited with code ${code}\n`);
+                mainWindow.webContents.send('process-closed', processId);
+            }
+            processes.delete(processId);
+        });
+        
+        // Wait a bit to see if the server starts successfully
+        setTimeout(() => {
+            if (!dashboardProcess.killed) {
+                resolve({ 
+                    success: true, 
+                    processId: processId,
+                    message: 'Dashboard server started successfully' 
+                });
+            }
+        }, 2000);
+        
+    } catch (error) {
+        resolve({ success: false, error: error.message });
+    }
 }

@@ -88,10 +88,15 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="section">
+                  <div class="section">
                     <div class="section-title map-tab" onclick="openMapTab()">
                         <span>🗺️ Map</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title dashboard-tab" onclick="openDashboardTab()">
+                        <span>� Dashboard</span>
                     </div>
                 </div>
             </div>
@@ -152,9 +157,10 @@
                 <button class="close-btn" onclick="hideCreateAggregatorForm()">×</button>
             </div>
             <div class="modal-body">
-                <form id="create-aggregator-form" onsubmit="createAggregator(event)">                    <div class="form-group">
-                        <label for="aggr-id">Aggregator ID (optional - auto-generated if empty):</label>
-                        <input type="text" id="aggr-id" placeholder="Leave empty for auto-generation (e.g., EU-Agr05, NA-Agr06)" />
+                <form id="create-aggregator-form" onsubmit="createAggregator(event)">
+                    <div class="form-group">
+                        <label for="aggr-id">Aggregator ID:</label>
+                        <input type="text" id="aggr-id" placeholder="e.g., EU-Agr05, NA-Agr06" required />
                     </div>
                     <div class="form-group">
                         <label for="aggr-region">Region:</label>
@@ -229,9 +235,10 @@
                 <button class="close-btn" onclick="hideCreateWavyForm()">×</button>
             </div>
             <div class="modal-body">
-                <form id="create-wavy-form" onsubmit="createWavy(event)">                    <div class="form-group">
-                        <label for="wavy-id-create">Wavy ID (optional - auto-generated if empty):</label>
-                        <input type="text" id="wavy-id-create" placeholder="Leave empty for auto-generation (e.g., Wavy33, Wavy34)" />
+                <form id="create-wavy-form" onsubmit="createWavy(event)">
+                    <div class="form-group">
+                        <label for="wavy-id-create">Wavy ID:</label>
+                        <input type="text" id="wavy-id-create" placeholder="e.g., Wavy33, Wavy34" required />
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -286,9 +293,7 @@
                 </form>
             </div>
         </div>
-    </div>
-
-    <!-- Map Tab Modal -->
+    </div>    <!-- Map Tab Modal -->
     <div class="map-modal" id="map-modal" style="display: none;">
         <div class="map-modal-content">
             <div class="map-header">
@@ -311,6 +316,29 @@
                     <span class="legend-color wavy-color"></span>
                     <span>Wavy Sensors</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Tab Modal -->
+    <div class="dashboard-modal" id="dashboard-modal" style="display: none;">
+        <div class="dashboard-modal-content">
+            <div class="dashboard-header">
+                <h3>📊 Oceanographic Data Dashboard</h3>
+                <div class="dashboard-controls">
+                    <button class="btn dashboard-control-btn" onclick="refreshDashboard()">🔄 Refresh</button>
+                    <button class="btn dashboard-control-btn" onclick="openDashboardExternal()">🌐 Open in Browser</button>
+                    <button class="close-btn" onclick="closeDashboardTab()">×</button>
+                </div>
+            </div>
+            <div class="dashboard-container">
+                <div class="dashboard-status" id="dashboard-status">
+                    <div class="status-indicator">
+                        <span id="dashboard-server-status">⚡</span>
+                        <span id="dashboard-server-text">Starting Dashboard Server...</span>
+                    </div>
+                </div>
+                <iframe id="dashboard-frame" src="" style="width: 100%; height: 600px; border: none; border-radius: 8px; background: white;"></iframe>
             </div>
         </div>
     </div>

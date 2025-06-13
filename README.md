@@ -274,4 +274,45 @@ For troubleshooting guides, performance optimization, and debugging information,
 
 For development workflow, architecture principles, and performance considerations, see **[PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md)** and **[SETUP.md](./SETUP.md)**.
 
+## 📊 Dashboard Features
+
+The system now includes a comprehensive Python-based dashboard with real-time data visualization:
+
+### Dashboard Capabilities
+- **🌊 Real-time Oceanographic Data**: Live charts showing wave height, sea surface temperature, wind speeds, and more
+- **🔍 Advanced Filtering**: Filter data by servers, aggregators, wavy sensors, oceans, and area types  
+- **📈 Interactive Charts**: Multiple chart types including time series, histograms, scatter plots, and pie charts
+- **🗺️ Geographic Distribution**: Visualize data distribution across different ocean regions
+- **📊 System Statistics**: Real-time stats showing active components and data metrics
+- **🌐 Web Interface**: Modern, responsive web interface accessible via browser or embedded in the management app
+
+### Dashboard Setup
+
+1. **Automated Setup** (Recommended):
+   ```bash
+   npm run setup-dashboard
+   ```
+
+2. **Manual Setup**:
+   ```bash
+   # Install Python dependencies
+   pip install -r requirements.txt
+   
+   # Start dashboard server
+   python dashboard_server.py
+   ```
+
+3. **Access Dashboard**:
+   - **Via Management Interface**: Click the "📊 Dashboard" tab in the sidebar
+   - **Direct Browser Access**: Visit http://localhost:5001
+   - **External Browser**: Use the "🌐 Open in Browser" button
+
+### Dashboard Filters
+- **🖥️ Servers**: Filter by continental servers (EU-S, NA-S, etc.)
+- **🔗 Aggregators**: Filter by specific aggregators (EU-Agr01, NA-Agr02, etc.)  
+- **🌊 Wavy Sensors**: Filter by individual sensor data (Wavy01, Wavy02, etc.)
+- **🌊 Oceans**: Atlantic, Pacific, Indian, Arctic, Southern
+- **🏖️ Area Types**: Coastal, Open Ocean, Coastal-Open
+- **⏰ Time Range**: Last hour, 6 hours, 24 hours, or week
+
 This distributed sensor data management system demonstrates modern software architecture principles while providing a robust foundation for IoT data processing and monitoring applications.
