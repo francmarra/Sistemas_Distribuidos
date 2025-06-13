@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Distributed System Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🖥️ Distributed System Manager</div>
+            <div class="system-status" id="system-status">
+                <span class="status-indicator" id="status-indicator">●</span>
+                <span id="status-text">System Ready</span>
+            </div>
+            <div class="controls">
+                <button class="btn startup-all" onclick="startAllComponents()">Start All</button>
+                <button class="btn stop" onclick="stopAllProcesses()">Stop All</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">                <div class="section">
+                    <div class="section-title">🖥️ Server</div>
+                    <div class="component-item" data-component="server" onclick="selectComponent('server')">
+                        <div class="component-name">Servidor</div>
+                        <div class="component-status stopped" id="status-server">Stopped</div>
+                    </div>
+                    <div class="component-controls">
+                        <div class="input-group">
+                            <input type="text" id="server-id" placeholder="e.g., EU-S, NA-S, etc. (optional)" />
+                            <button class="btn" onclick="startServerWithId()">Start</button>
+                        </div>
+                        <button class="btn" onclick="startServer()" id="btn-server">Start Basic Server</button>
+                    </div>
+                </div><div class="section">
+                    <div class="section-title accordion-header" onclick="toggleAccordion('aggregators')">
+                        <span>🔗 Aggregators</span>
+                        <span class="accordion-arrow" id="aggregators-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content" id="aggregators-content">
+                        <div class="component-controls">
+                            <div class="input-group">
+                                <input type="text" id="aggregator-id" placeholder="e.g., EU-Agr01, NA-Agr02, AS-Agr03, etc." />
+                                <button class="btn" onclick="startAggregator()">Start</button>
+                            </div>
+                            <button class="btn create-btn" onclick="showCreateAggregatorForm()">+ Create New</button>
+                        </div>
+                        <div id="aggregator-list"></div>
+                    </div>
+                </div>                <div class="section">
+                    <div class="section-title accordion-header" onclick="toggleAccordion('wavys')">
+                        <span>🌊 Wavys</span>
+                        <span class="accordion-arrow" id="wavys-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content" id="wavys-content">
+                        <div class="component-controls">
+                            <div class="input-group">
+                                <input type="text" id="wavy-id" placeholder="e.g., Wavy01, Wavy02, etc." />
+                                <button class="btn" onclick="startWavy()">Start</button>
+                            </div>
+                            <button class="btn create-btn" onclick="showCreateWavyForm()">+ Create New</button>
+                        </div>
+                        <div id="wavy-list"></div>
+                    </div>
+                </div><div class="section">
+                    <div class="section-title accordion-header" onclick="toggleAccordion('regional-quick-start')">
+                        <span>🚀 Regional Quick Start</span>
+                        <span class="accordion-arrow" id="regional-quick-start-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content" id="regional-quick-start-content">
+                        <div class="startup-controls">
+                            <div class="continent-row">
+                                <button class="btn continent-btn" onclick="quickStartRegion('EU')">Europe<br>(EU)</button>
+                                <button class="btn continent-btn" onclick="quickStartRegion('NA')">North America<br>(NA)</button>
+                                <button class="btn continent-btn" onclick="quickStartRegion('SA')">South America<br>(SA)</button>
+                            </div>
+                            <div class="continent-row">
+                                <button class="btn continent-btn" onclick="quickStartRegion('AF')">Africa<br>(AF)</button>
+                                <button class="btn continent-btn" onclick="quickStartRegion('AS')">Asia<br>(AS)</button>
+                                <button class="btn continent-btn" onclick="quickStartRegion('OC')">Oceania<br>(OC)</button>
+                            </div>
+                            <div class="continent-row">
+                                <button class="btn continent-btn" onclick="quickStartRegion('AQ')">Antarctica<br>(AQ)</button>
+                                <button class="btn continent-btn" onclick="startAllRegions()" style="background: linear-gradient(135deg, #4CAF50, #45a049); font-weight: bold;">🌍 Start All<br>Regions</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title map-tab" onclick="openMapTab()">
+                        <span>🗺️ Map</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal">
+                <div class="terminal-controls">
+                    <button class="btn" onclick="clearTerminal()">Clear</button>
+                    <button class="btn" onclick="toggleTailMode()">Tail Mode: <span id="tail-mode-status">ON</span></button>
+                    <button class="btn" onclick="highlightErrors()">Highlight Errors</button>
+                    <span id="message-count" class="message-counter">0 messages</span>
+                </div>
+                <div class="terminal-content" id="terminal-content">                    <div class="welcome-message">
+                        ═══════════════════════════════════════════════════════════════════════════════════<br>
+                        🚀 <strong>DISTRIBUTED SYSTEM MANAGER</strong> 🚀<br>
+                        ═══════════════════════════════════════════════════════════════════════════════════<br><br>
+                        Welcome to the Distributed System Manager!<br><br>
+                        <span class="info-text">Components:</span><br>
+                        • <strong>Servidor</strong> - Central data collection server<br>
+                        • <strong>Agregador</strong> - Data aggregation service<br>
+                        • <strong>Wavy</strong> - Ocean sensor data generator<br><br>                        <span class="success-text">Instructions:</span><br>
+                        1. ✅ Server starts automatically on launch<br>
+                        2. Use <strong>Start Basic Server</strong> for the main server, or enter a Regional Server ID (e.g., EU-S, NA-S) to create a dedicated regional server<br>
+                        3. Use <strong>Regional Quick Start</strong> to deploy complete regional systems<br>
+                        4. Use <strong>+ Create New</strong> buttons to create custom Aggregators and Wavy sensors<br>
+                        5. Or manually start existing components using the input fields<br><br><span class="info-text">Regional Systems:</span><br>
+                        • <strong>Europe (EU)</strong>: EU-S server, 4 aggregators, 4 wavy sensors<br>
+                        • <strong>North America (NA)</strong>: NA-S server, 5 aggregators, 7 wavy sensors<br>
+                        • <strong>South America (SA)</strong>: SA-S server, 4 aggregators, 6 wavy sensors<br>
+                        • <strong>Africa (AF)</strong>: AF-S server, 4 aggregators, 6 wavy sensors<br>
+                        • <strong>Asia (AS)</strong>: AS-S server, 5 aggregators, 8 wavy sensors<br>
+                        • <strong>Oceania (OC)</strong>: OC-S server, 5 aggregators, 6 wavy sensors<br>
+                        • <strong>Antarctica (AQ)</strong>: AQ-S server, 1 aggregator, 4 wavy sensors<br><br>                        <span class="info-text">Keyboard Shortcuts:</span><br>
+                        • <strong>Ctrl+Shift+S</strong> - Start Server<br>
+                        • <strong>Ctrl+Shift+R</strong> - Focus Regional Server Input<br>
+                        • <strong>Ctrl+Shift+A</strong> - Start All Components<br>
+                        • <strong>Ctrl+Shift+X</strong> - Stop All Processes<br>
+                        • <strong>Ctrl+Shift+G</strong> - Create New Aggregator<br>
+                        • <strong>Ctrl+Shift+W</strong> - Create New Wavy Sensor<br>
+                        • <strong>Ctrl+`</strong> - Focus Terminal Input<br>
+                        • <strong>Escape</strong> - Close Creation Forms<br><br>
+                        Click on any component to view its output in this terminal.<br>
+                        Use <strong>Regional Quick Start</strong> buttons for easy regional deployment.<br><br>
+                        <span class="info-text">Ready to begin! 🎯</span><br>
+                        ═══════════════════════════════════════════════════════════════════════════════════
+                    </div>
+                </div>
+                
+                <div class="terminal-input" id="terminal-input">
+                    <input type="text" id="command-input" placeholder="Type command and press Enter..." />
+                </div>
+            </div>        </div>    </div>
+
+    <!-- Create Aggregator Modal -->
+    <div class="modal" id="create-aggregator-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔧 Create New Aggregator</h3>
+                <button class="close-btn" onclick="hideCreateAggregatorForm()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-aggregator-form" onsubmit="createAggregator(event)">                    <div class="form-group">
+                        <label for="aggr-id">Aggregator ID (optional - auto-generated if empty):</label>
+                        <input type="text" id="aggr-id" placeholder="Leave empty for auto-generation (e.g., EU-Agr05, NA-Agr06)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="aggr-region">Region:</label>
+                        <select id="aggr-region" required>
+                            <option value="">Select Region</option>
+                            <option value="North America">North America</option>
+                            <option value="South America">South America</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Oceania">Oceania</option>
+                            <option value="Antarctica">Antarctica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="aggr-ocean">Ocean:</label>
+                        <select id="aggr-ocean" required>
+                            <option value="">Select Ocean</option>
+                            <option value="Atlantic">Atlantic</option>
+                            <option value="Pacific">Pacific</option>
+                            <option value="Indian">Indian</option>
+                            <option value="Arctic">Arctic</option>
+                            <option value="Southern">Southern</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="aggr-area-type">Area Type:</label>
+                        <select id="aggr-area-type" required>
+                            <option value="">Select Area Type</option>
+                            <option value="Coastal">Coastal</option>
+                            <option value="Open">Open</option>
+                            <option value="Coastal-Open">Coastal-Open</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="aggr-latitude">Latitude:</label>
+                            <input type="number" id="aggr-latitude" min="-90" max="90" step="any" placeholder="e.g., 40.7128" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="aggr-longitude">Longitude:</label>
+                            <input type="number" id="aggr-longitude" min="-180" max="180" step="any" placeholder="e.g., -74.0060" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="aggr-data-types">Subscribed Data Types:</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" value="wave_height_meters" checked> Wave Height (m)</label>
+                            <label><input type="checkbox" value="wave_direction_degrees" checked> Wave Direction (°)</label>
+                            <label><input type="checkbox" value="current_speed_ms" checked> Current Speed (m/s)</label>
+                            <label><input type="checkbox" value="current_direction_degrees" checked> Current Direction (°)</label>
+                            <label><input type="checkbox" value="acoustic_level_db" checked> Acoustic Level (dB)</label>
+                            <label><input type="checkbox" value="sea_level_meters"> Sea Level (m)</label>
+                            <label><input type="checkbox" value="turbidity_ntu"> Turbidity (NTU)</label>
+                            <label><input type="checkbox" value="surface_pressure_hpa"> Surface Pressure (hPa)</label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn cancel-btn" onclick="hideCreateAggregatorForm()">Cancel</button>
+                        <button type="submit" class="btn create-btn">Create Aggregator</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Wavy Modal -->
+    <div class="modal" id="create-wavy-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🌊 Create New Wavy Sensor</h3>
+                <button class="close-btn" onclick="hideCreateWavyForm()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-wavy-form" onsubmit="createWavy(event)">                    <div class="form-group">
+                        <label for="wavy-id-create">Wavy ID (optional - auto-generated if empty):</label>
+                        <input type="text" id="wavy-id-create" placeholder="Leave empty for auto-generation (e.g., Wavy33, Wavy34)" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="wavy-latitude">Latitude:</label>
+                            <input type="number" id="wavy-latitude" min="-90" max="90" step="any" placeholder="e.g., 40.7128" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="wavy-longitude">Longitude:</label>
+                            <input type="number" id="wavy-longitude" min="-180" max="180" step="any" placeholder="e.g., -74.0060" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="wavy-ocean">Ocean:</label>
+                        <select id="wavy-ocean" required>
+                            <option value="">Select Ocean</option>
+                            <option value="Atlantic">Atlantic</option>
+                            <option value="Pacific">Pacific</option>
+                            <option value="Indian">Indian</option>
+                            <option value="Arctic">Arctic</option>
+                            <option value="Southern">Southern</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="wavy-area-type">Area Type:</label>
+                        <select id="wavy-area-type" required>
+                            <option value="">Select Area Type</option>
+                            <option value="Coastal">Coastal</option>
+                            <option value="Open">Open</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="wavy-region-coverage">Region Coverage:</label>
+                        <input type="text" id="wavy-region-coverage" placeholder="e.g., North Atlantic, Pacific Coast" required />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="wavy-data-interval">Data Interval (ms):</label>
+                            <input type="number" id="wavy-data-interval" min="1000" max="30000" value="5000" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="wavy-status">Status:</label>
+                            <select id="wavy-status">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn cancel-btn" onclick="hideCreateWavyForm()">Cancel</button>
+                        <button type="submit" class="btn create-btn">Create Wavy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Tab Modal -->
+    <div class="map-modal" id="map-modal" style="display: none;">
+        <div class="map-modal-content">
+            <div class="map-header">
+                <h3>🗺️ System Components Map</h3>
+                <button class="close-btn" onclick="closeMapTab()">×</button>
+            </div>
+            <div class="map-container">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-color server-color"></span>
+                    <span>Servers</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color aggregator-color"></span>
+                    <span>Aggregators</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color wavy-color"></span>
+                    <span>Wavy Sensors</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="renderer.js"></script>
+</body>
+</html>

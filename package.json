@@ -1,0 +1,37 @@
+{
+  "name": "sd_trabalho_2",
+  "version": "1.0.0",
+  "description": "1. Open `Shared/MongoDB/MongoDBConfig.cs`.\r 2. Set `CONNECTION_STRING` to your MongoDB connection string.\r 3. Set `DATABASE_NAME` to your database name.",
+  "main": "main.js",
+  "dependencies": {
+    "bson": "^6.10.3",
+    "memory-pager": "^1.5.0",
+    "mongodb": "^6.16.0",
+    "mongodb-connection-string-url": "^3.0.2",
+    "punycode": "^2.3.1",
+    "sparse-bitfield": "^3.0.3",
+    "tr46": "^5.1.1",
+    "webidl-conversions": "^7.0.0",
+    "whatwg-url": "^14.2.0"
+  },
+  "devDependencies": {
+    "electron": "^36.3.1"
+  },  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "validate": "powershell -ExecutionPolicy Bypass -File validate-system.ps1",
+    "build-cs": "dotnet build SD_TRABALHO_2.sln",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francmarra/SD_TRABALHO_2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/francmarra/SD_TRABALHO_2/issues"
+  },
+  "homepage": "https://github.com/francmarra/SD_TRABALHO_2#readme"
+}
