@@ -406,8 +406,6 @@ ConfigImporterNew.cs
 
 ConfigImporterNew.csproj
 
-configs/
-
 SubscriptionImporter/
 
 WavyConfigImporter/

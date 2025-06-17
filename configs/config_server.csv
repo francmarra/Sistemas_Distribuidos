@@ -1,0 +1,8 @@
+server_id,continent,continent_code,port,queue_name,database_name,is_active,max_connections,latitude,longitude
+EU-S,Europe,EU,11000,eu_server_queue,SensorData_EU,true,100,52.48544272874536,13.295758386047169
+NA-S,North America,NA,12000,na_server_queue,SensorData_NA,true,100,42.374737974646294,-71.09031014682976
+SA-S,South America,SA,13000,sa_server_queue,SensorData_SA,true,100,-23.912873910047033,-48.40370291512925
+AF-S,Africa,AF,14000,af_server_queue,SensorData_AF,true,100,30.274885097491715,31.088981298361634
+AS-S,Asia,AS,15000,as_server_queue,SensorData_AS,true,100,39.644826715789556,116.36664398561176
+OC-S,Oceania,OC,16000,oc_server_queue,SensorData_OC,true,100,-33.88032994596565,151.1429686457014
+AQ-S,Antarctica,AQ,17000,aq_server_queue,SensorData_AQ,true,50,-77.84643342474398,166.66867117176406
